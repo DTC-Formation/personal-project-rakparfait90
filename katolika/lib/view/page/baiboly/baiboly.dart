@@ -4,6 +4,7 @@ import 'package:katolika/model/color.dart';
 import 'package:katolika/view/appbar.dart';
 import 'package:katolika/view/bottomnavigation.dart';
 import 'package:katolika/view/drawer.dart';
+import 'package:katolika/view/page/recherchepage.dart';
 
 class Baiboly extends StatelessWidget {
   const Baiboly({super.key});
@@ -226,7 +227,12 @@ class Baiboly extends StatelessWidget {
                 style: TextStyle(color: Colors.white, fontSize: 13),
               ),
               onTap: () {
-                Navigator.pushNamed(context, '/fitadiavana');
+                // Naviguer vers la page de recherche
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const RecherchePage()),
+                );
               },
             ),
           ),

@@ -37,7 +37,7 @@ class VerseScreen extends StatelessWidget {
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         // Utilisez votre méthode pour récupérer la liste des versets en fonction du bookId et du chapterNumber
-        future: DatabaseHelper().getVerses(bookId, chapterNumber),
+        future: DatabaseHelper().getAndiny(bookId, chapterNumber),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -51,27 +51,45 @@ class VerseScreen extends StatelessWidget {
             // Récupérez la liste des versets depuis le snapshot
             List<Map<String, dynamic>> verses = snapshot.data!;
 
-            //Concaténer les versets dans une seule chaîne
-            RichText allVersesText = RichText(
-              text: TextSpan(
-                children: verses.map((verse) {
-                  return TextSpan(
-                      text: '${verse['andininy']} ',
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        textBaseline: TextBaseline.ideographic,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: '${verse['votoatiny']}',
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.normal,
+            // Concaténer les versets dans une seule chaîne
+            Padding allVersesText = Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: SingleChildScrollView(
+                child: RichText(
+                  textAlign: TextAlign.justify,
+                  text: TextSpan(
+                    style: const TextStyle(height: 1.7),
+                    children: verses.map((verse) {
+                      return TextSpan(
+                        children: [
+                          // Utiliser une taille de police plus petite pour simuler l'exposant
+                          WidgetSpan(
+                            child: Transform.translate(
+                              offset: const Offset(0,
+                                  -5), // Ajustez cet offset pour simuler l'exposant
+                              child: Text(
+                                '${verse['andininy']}', // Remplacez par le texte de l'exposant
+                                style: const TextStyle(
+                                  fontSize:
+                                      14, // Ajustez la taille de la police pour simuler l'exposant
+                                  color: Colors
+                                      .red, // Vous pouvez ajuster la couleur si nécessaire
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ]);
-                }).toList(),
+                          TextSpan(
+                            text: ' ${verse['votoatiny']} ',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
             );
 
@@ -88,23 +106,25 @@ class VerseScreen extends StatelessWidget {
                       return Text('Error: ${snapshot.error}');
                     } else {
                       return Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
                         child: Text(
                           snapshot.data!,
                           style: const TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.bold,
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       );
                     }
                   },
                 ),
-                const SizedBox(height: 16.0),
                 // afficher tous les versets avec un saut de ligne entre chaque
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: allVersesText,
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: allVersesText,
+                  ),
                 ),
               ],
             );

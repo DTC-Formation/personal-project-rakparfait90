@@ -33,7 +33,7 @@ class ChapterScreen extends StatelessWidget {
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         // Utilisez votre méthode pour récupérer la liste des chapitres en fonction du bookId
-        future: DatabaseHelper().getChapters(bookId),
+        future: DatabaseHelper().getToko(bookId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(

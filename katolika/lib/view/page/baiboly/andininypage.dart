@@ -60,7 +60,7 @@ class VerseScreen extends StatelessWidget {
                       style: const TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
-                        textBaseline: TextBaseline.alphabetic,
+                        textBaseline: TextBaseline.ideographic,
                       ),
                       children: [
                         TextSpan(
@@ -102,11 +102,9 @@ class VerseScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16.0),
                 // afficher tous les versets avec un saut de ligne entre chaque
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: allVersesText,
-                  ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: allVersesText,
                 ),
               ],
             );

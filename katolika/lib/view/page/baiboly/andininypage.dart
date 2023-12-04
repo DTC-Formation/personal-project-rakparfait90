@@ -51,10 +51,10 @@ class VerseScreen extends StatelessWidget {
             // Récupérez la liste des versets depuis le snapshot
             List<Map<String, dynamic>> verses = snapshot.data!;
 
-            // Concaténer les versets dans une seule chaîne
-            // String allVersesText = verses
-            //     .map((verse) => "${verse['andininy']} ${verse['votoatiny']}")
-            //     .join(" ");
+            //Concaténer les versets dans une seule chaîne
+            String allVersesText = verses
+                .map((verse) => "${verse['andininy']} ${verse['votoatiny']}")
+                .join(" ");
 
             // Affichage fintina an'ilay toko dans une carte
             return Column(
@@ -84,34 +84,18 @@ class VerseScreen extends StatelessWidget {
                 const SizedBox(height: 16.0),
                 // Utiliser un ListView.builder pour afficher tous les versets avec un saut de ligne entre chaque
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: verses.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: '${verses[index]['andininy']} ',
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                  textBaseline: TextBaseline.alphabetic,
-                                ),
-                              ),
-                              TextSpan(
-                                text: '${verses[index]['votoatiny']}',
-                                style: const TextStyle(
-                                  color: primary,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                            ],
-                          ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RichText(
+                      text: TextSpan(
+                        text: '$allVersesText ',
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          textBaseline: TextBaseline.alphabetic,
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
                 ),
               ],

@@ -52,9 +52,28 @@ class VerseScreen extends StatelessWidget {
             List<Map<String, dynamic>> verses = snapshot.data!;
 
             //Concaténer les versets dans une seule chaîne
-            String allVersesText = verses
-                .map((verse) => "${verse['andininy']} ${verse['votoatiny']}")
-                .join(" ");
+            RichText allVersesText = RichText(
+              text: TextSpan(
+                children: verses.map((verse) {
+                  return TextSpan(
+                      text: '${verse['andininy']} ',
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        textBaseline: TextBaseline.alphabetic,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: '${verse['votoatiny']}',
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ]);
+                }).toList(),
+              ),
+            );
 
             // Affichage fintina an'ilay toko dans une carte
             return Column(
@@ -82,20 +101,11 @@ class VerseScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 16.0),
-                // Utiliser un ListView.builder pour afficher tous les versets avec un saut de ligne entre chaque
+                // afficher tous les versets avec un saut de ligne entre chaque
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: RichText(
-                      text: TextSpan(
-                        text: '$allVersesText ',
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          textBaseline: TextBaseline.alphabetic,
-                        ),
-                      ),
-                    ),
+                    child: allVersesText,
                   ),
                 ),
               ],

@@ -4,7 +4,10 @@ import 'package:katolika/view/page/baiboly/baiboly.dart';
 import 'package:katolika/view/page/baiboly/famakiana.dart';
 import 'package:katolika/view/page/baiboly/testamenta_taloha.dart';
 import 'package:katolika/view/page/baiboly/testamenta_vaovao.dart';
+import 'package:katolika/view/page/fihirana/fihirana.dart';
 import 'package:katolika/view/page/homepage.dart';
+import 'package:katolika/view/page/raozery/raozery.dart';
+import 'package:katolika/view/page/soronamasina/soronamasina.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,12 +31,12 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/baiboly': (context) => const Baiboly(),
-        // '/soronamasina': (context) => const SoronaMasina(),
-        // '/raozery': (context) => const Raozery(),
-        // '/fihirana': (context) => const Fihirana(),
         '/testaloha': (context) => const TestamentaTaloha(),
         '/tesvaovao': (context) => const TestamentaVaovao(),
         '/famakiana': (context) => const FamakianaManokana(),
+        '/soronaMasina': (context) => const SoronaMasina(),
+        '/raozery': (context) => const RaozeryMasina(),
+        '/fihirana': (context) => const FihiranaKatolika(),
       },
       home: const MyHomePage(),
     );

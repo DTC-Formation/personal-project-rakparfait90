@@ -4,8 +4,8 @@ import 'package:katolika/model/color.dart';
 enum BottomNavigationItems {
   fandraisana,
   baiboly,
-  rozery,
-  soronaMasina;
+  soronaMasina,
+  raozery;
 
   String get routeName => name == 'fandraisana' ? '/' : '/$name';
 }
@@ -22,7 +22,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    const List<BottomNavigationItems> items = BottomNavigationItems.values;
+    // const List<BottomNavigationItems> items = BottomNavigationItems.values;
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       selectedItemColor: tealBlue,
@@ -54,7 +54,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
         buildBottomNavigationBarItem(
           icon: 'assets/images/icons/rozery.png',
           label: 'Raozery',
-          item: BottomNavigationItems.rozery,
+          item: BottomNavigationItems.raozery,
         ),
       ],
     );

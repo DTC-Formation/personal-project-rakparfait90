@@ -48,7 +48,7 @@ class _SideBarDrawerState extends State<SideBarDrawer> {
                       height: 30,
                     ),
                     title: const Text("Fihirana Katolika"),
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => Navigator.of(context).pushNamed('/fihirana'),
                   ),
                   ListTile(
                     leading: Image.asset(

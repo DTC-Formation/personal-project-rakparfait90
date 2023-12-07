@@ -11,19 +11,19 @@ class Baiboly extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    // var size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: const HeaderBar(),
       body: Column(
         children: [
-          Container(
-            height: 50,
-            width: size.width,
-            color: tealBlue,
-            child: const Center(
-              child: Text(
-                "BAIBOLY MASINA",
-                style: TextStyle(color: Colors.white),
+          const Padding(
+            padding: EdgeInsets.only(top: 40.0, bottom: 22.0),
+            child: Text(
+              "Baiboly Masina",
+              style: TextStyle(
+                color: tealBlue,
+                fontSize: 52,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -183,6 +183,7 @@ class Baiboly extends StatelessWidget {
               ],
             ),
           ),
+          //
           Card(
             margin: const EdgeInsets.fromLTRB(18, 5, 18, 5),
             color: primary,

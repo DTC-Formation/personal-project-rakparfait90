@@ -14,8 +14,8 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), 'baiboly.db');
-    ByteData data = await rootBundle.load(join('assets', 'baiboly.db'));
+    String path = join(await getDatabasesPath(), 'katolika.db');
+    ByteData data = await rootBundle.load(join('assets', 'katolika.db'));
     List<int> bytes = data.buffer.asUint8List();
     await File(path).writeAsBytes(bytes, flush: true);
 
@@ -129,10 +129,10 @@ class DatabaseHelper {
     List<Map<String, dynamic>> bokyResults = await db.rawQuery(
       'SELECT tBoky.boky AS bookName, tBoky.id, tBoky.testamenta, tBoky.toko, tToko.fintina, tAndininy.andininy, tAndininy.votoatiny '
       'FROM tBoky '
-      'LEFT JOIN tToko ON tBoky.id = tToko.boky '
-      'LEFT JOIN tAndininy ON tBoky.id = tAndininy.boky '
+      'INNER JOIN tToko ON tBoky.id = tToko.boky '
+      'INNER JOIN tAndininy ON tBoky.id = tAndininy.boky '
       'WHERE tBoky.boky LIKE ? OR tToko.fintina LIKE ? OR tAndininy.votoatiny LIKE ? '
-      'ORDER BY tBoky.id ASC LIMIT 10 OFFSET 0',
+      'ORDER BY tBoky.id ASC LIMIT 30 OFFSET 0',
       ['%$searchTerm%', '%$searchTerm%', '%$searchTerm%'],
     );
 

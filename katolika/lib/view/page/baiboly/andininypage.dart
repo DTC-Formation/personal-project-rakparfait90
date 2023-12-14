@@ -7,13 +7,14 @@ class VerseScreen extends StatelessWidget {
   final int chapterNumber;
 
   const VerseScreen({
+    super.key,
     required this.bookId,
     required this.chapterNumber,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: tealBlue,
@@ -78,7 +79,7 @@ class VerseScreen extends StatelessWidget {
                           TextSpan(
                             text: '${verse['votoatiny']} ',
                             style: const TextStyle(
-                              color: Colors.black,
+                              color: primary,
                               fontWeight: FontWeight.normal,
                             ),
                           ),
@@ -104,7 +105,9 @@ class VerseScreen extends StatelessWidget {
                     } else {
                       return Container(
                         padding: const EdgeInsets.all(8),
-                        color: Colors.blue[300],
+                        width: size.width,
+                        alignment: Alignment.center,
+                        color: tealDark,
                         child: Text(
                           snapshot.data!,
                           style: const TextStyle(

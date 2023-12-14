@@ -68,11 +68,13 @@ class FamakianaManokana extends StatelessWidget {
                               books.elementAt(index)['testamenta'].toString()),
                           onTap: () {
                             _showDetailsModal(
-                                context,
-                                books
-                                    .elementAt(index)['fanononanaBoky']
-                                    .toString(),
-                                books.elementAt(index)['id']);
+                              context,
+                              books.elementAt(index)['boky'].toString(),
+                              books
+                                  .elementAt(index)['fanononanaBoky']
+                                  .toString(),
+                              books.elementAt(index)['id'],
+                            );
                           },
                         ),
                       );
@@ -87,7 +89,8 @@ class FamakianaManokana extends StatelessWidget {
     );
   }
 
-  void _showDetailsModal(BuildContext context, String bookTitle, int bookId) {
+  void _showDetailsModal(
+      BuildContext context, String bookName, String bookTitle, int bookId) {
     int toko = 0;
     int startAndininy = 0;
     int endAndininy = 0;
@@ -178,6 +181,7 @@ class FamakianaManokana extends StatelessWidget {
                         // Process data.
                         _handleValidation(
                           context,
+                          bookName,
                           bookTitle,
                           toko,
                           startAndininy,
@@ -202,8 +206,8 @@ class FamakianaManokana extends StatelessWidget {
     );
   }
 
-  void _handleValidation(BuildContext context, String bookName, int toko,
-      int startAndininy, int endAndininy) {
+  void _handleValidation(BuildContext context, String bookName,
+      String bookTitle, int toko, int startAndininy, int endAndininy) {
     // Hidiana ny modal
     Navigator.pop(context);
 
@@ -213,6 +217,7 @@ class FamakianaManokana extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => AndininyManokana(
           bookName: bookName,
+          bookTitle: bookTitle,
           toko: toko,
           startAndininy: startAndininy,
           endAndininy: endAndininy,

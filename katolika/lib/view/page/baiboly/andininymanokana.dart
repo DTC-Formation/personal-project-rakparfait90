@@ -3,6 +3,7 @@ import 'package:katolika/controller/database_helper.dart';
 
 class AndininyManokana extends StatelessWidget {
   final String bookName;
+  final String bookTitle;
   final int toko;
   final int startAndininy;
   final int endAndininy;
@@ -10,6 +11,7 @@ class AndininyManokana extends StatelessWidget {
   const AndininyManokana({
     super.key,
     required this.bookName,
+    required this.bookTitle,
     required this.toko,
     required this.startAndininy,
     required this.endAndininy,
@@ -52,7 +54,6 @@ class AndininyManokana extends StatelessWidget {
     final String bookTitle = bookInfo['boky'] ?? '';
     final String testamenta = bookInfo['testamenta'] ?? '';
 
-    // If you have a chapter number, you can fetch the chapter fintina here
     final String chapterFintina =
         await DatabaseHelper().getTokoFintina(bookId, toko);
 

@@ -1,0 +1,238 @@
+import 'package:flutter/material.dart';
+import 'package:katolika/controller/database_helper.dart';
+import 'package:katolika/model/color.dart';
+import 'package:katolika/view/page/soronamasina/votoatinysoronamasina.dart';
+import 'package:intl/intl.dart';
+
+class SoronaMasinaLisitra extends StatefulWidget {
+  const SoronaMasinaLisitra({super.key});
+
+  @override
+  State<SoronaMasinaLisitra> createState() => _SoronaMasinaLisitraState();
+}
+
+class _SoronaMasinaLisitraState extends State<SoronaMasinaLisitra> {
+  final ScrollController _scrollController = ScrollController();
+  List<Map<String, dynamic>> items = [];
+  bool isFetchingMore = false;
+  bool hasMoreData = true;
+  int currentPage = 1;
+  DateTime currentDate = DateTime.now();
+  bool isCalendarSelected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchInitialData();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  Future<void> _fetchInitialData({DateTime? selectedDate}) async {
+    setState(() {
+      isFetchingMore = true;
+    });
+
+    try {
+      var dateToUse = selectedDate ?? currentDate;
+      var formattedDate = DateFormat('yyyy-MM-dd').format(dateToUse);
+      var initialItems = await DatabaseHelper()
+          .getSoronaMasinaByDate(formattedDate, page: currentPage);
+
+      if (initialItems.isNotEmpty) {
+        setState(() {
+          items = initialItems;
+        });
+      }
+
+      int dateIndex = await DatabaseHelper().getIndexByDate(formattedDate);
+      setState(() {
+        currentPage = (dateIndex / 30).floor() + 1;
+        isFetchingMore = false;
+      });
+    } catch (e) {
+      setState(() {
+        isFetchingMore = false;
+        hasMoreData = false;
+      });
+      print('Erreur lors de la récupération des données: $e');
+    }
+  }
+
+  Future<void> _fetchSoronaMasina(String date,
+      {bool isFetchingMoreBefore = false}) async {
+    if (isFetchingMore) return;
+    setState(() => isFetchingMore = true);
+
+    try {
+      var newItems = isFetchingMoreBefore
+          ? await DatabaseHelper().getSoronaMasinaBeforeDate(date)
+          : await DatabaseHelper().getSoronaMasinaAfterDate(date);
+
+      if (newItems.isNotEmpty) {
+        setState(() {
+          if (isFetchingMoreBefore) {
+            items.insertAll(0, newItems);
+          } else {
+            items.addAll(newItems);
+          }
+          currentDate = DateFormat('yyyy-MM-dd').parse(newItems.last['daty']);
+        });
+      } else {
+        setState(() => hasMoreData = false);
+      }
+    } catch (e) {
+      setState(() => hasMoreData = false);
+    }
+    setState(() => isFetchingMore = false);
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent &&
+        hasMoreData &&
+        !isCalendarSelected) {
+      _fetchSoronaMasina(DateFormat('yyyy-MM-dd').format(currentDate));
+    } else if (_scrollController.position.atEdge) {
+      final isTop = _scrollController.position.pixels == 0;
+      if (isTop) {
+        _fetchSoronaMasina(DateFormat('yyyy-MM-dd').format(currentDate),
+            isFetchingMoreBefore: true);
+      } else {
+        _fetchSoronaMasina(DateFormat('yyyy-MM-dd').format(currentDate));
+      }
+    }
+  }
+
+  void _onDateSelected(DateTime selectedDate) async {
+    setState(() {
+      items = List<Map<String, dynamic>>.from(items)..clear();
+      currentDate = selectedDate;
+    });
+
+    await _fetchInitialData();
+    _replaceScrollListener(_scrollListener);
+  }
+
+  void _replaceScrollListener(VoidCallback newListener) {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.addListener(newListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: lighten_2,
+      appBar: AppBar(
+        actionsIconTheme: const IconThemeData(color: lighten_1),
+        iconTheme: const IconThemeData(color: lighten_1),
+        backgroundColor: primary,
+        centerTitle: true,
+        title: const Text(
+          'Sorona Masina',
+          style: TextStyle(color: lighten_1),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: () async {
+              DateTime? selectedDate = await showDatePicker(
+                context: context,
+                initialDate: currentDate,
+                firstDate: DateTime(2024),
+                lastDate: DateTime(2028),
+              );
+              if (selectedDate != null) {
+                _onDateSelected(selectedDate);
+              }
+            },
+          ),
+        ],
+      ),
+      body: ListView.builder(
+        controller: _scrollController,
+        itemCount: items.length + (hasMoreData ? 1 : 0),
+        itemBuilder: (BuildContext context, int index) {
+          if (index == items.length && hasMoreData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          var item = items.elementAt(index);
+          var loko = item['loko'];
+          return Card(
+            margin: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+            color: primary,
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(0),
+              leading: Container(
+                margin: const EdgeInsets.all(8.0),
+                color: _getColorFromName(loko),
+                height: 24,
+                width: 24,
+              ),
+              title: Text(
+                '${formatDate(item['daty'])} ${item['daty_gasy']}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: secondary,
+                  fontSize: 18.0,
+                ),
+              ),
+              subtitle: Text(
+                '${capitalizeFirstLetter(item['herinandro'].toString().replaceFirst("HER.", "HERINANDRO"))} ${capitalizeFirstLetter(item['vanimpotoana'])}',
+                style: const TextStyle(
+                  color: tertiary,
+                  fontSize: 15.0,
+                ),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const VotoatinySoronaMasina(),
+                    // Assurez-vous que VotoatinySoronaMasina attend 'item' en tant qu'argument si nécessaire.
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Color _getColorFromName(String? colorName) {
+    const defaultColor = Colors.green;
+    if (colorName == null) {
+      return defaultColor;
+    } else {
+      switch (colorName) {
+        case 'green':
+          return Colors.green;
+        case 'white':
+          return Colors.white;
+        case 'red':
+          return Colors.red;
+        default:
+          return Colors.transparent;
+      }
+    }
+  }
+
+  String capitalizeFirstLetter(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
+  String formatDate(String date) {
+    DateTime dateTime = DateFormat('yyyy-MM-dd').parse(date);
+    String formattedDate = DateFormat('dd-MM-yyyy').format(dateTime);
+    return formattedDate;
+  }
+}

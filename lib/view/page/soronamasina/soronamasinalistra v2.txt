@@ -1,0 +1,243 @@
+import 'package:flutter/material.dart';
+import 'package:katolika/controller/database_helper.dart';
+import 'package:katolika/model/color.dart';
+import 'package:katolika/view/page/soronamasina/votoatinysoronamasina.dart';
+import 'package:intl/intl.dart';
+
+class SoronaMasinaLisitra extends StatefulWidget {
+  const SoronaMasinaLisitra({super.key});
+
+  @override
+  State<SoronaMasinaLisitra> createState() => _SoronaMasinaLisitraState();
+}
+
+class _SoronaMasinaLisitraState extends State<SoronaMasinaLisitra> {
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey yourListItemKey = GlobalKey();
+  List<Map<String, dynamic>> items = [];
+  bool isFetchingMore = false;
+  bool hasMoreData = true;
+  int currentPage = 1;
+  final double _heightOfYourListTile = 48.0;
+  int? indexToShow;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchInitialData();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  Future<void> _fetchInitialData({DateTime? selectedDate}) async {
+    // Si une date est sélectionnée, utilisez-la pour initialiser les données, sinon utilisez la fonction actuelle
+    if (selectedDate != null) {
+      String formattedDate = DateFormat('yyyy-MM-dd').format(
+          selectedDate); // Format the selected date to match your DB format
+      var initialItems =
+          await DatabaseHelper().getSoronaMasinaByDate(formattedDate);
+      if (initialItems.isNotEmpty) {
+        setState(() {
+          items = [initialItems.first];
+        });
+      }
+    } else {
+      var initialItems =
+          await DatabaseHelper().getSoronaMasina(page: currentPage);
+      if (initialItems.isNotEmpty) {
+        setState(() {
+          items.addAll(initialItems);
+          currentPage++;
+        });
+      }
+    }
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent &&
+        hasMoreData) {
+      _fetchMoreData();
+    }
+  }
+
+  Future<void> _fetchMoreData() async {
+    if (isFetchingMore) return;
+    setState(() => isFetchingMore = true);
+
+    try {
+      var newItems = await DatabaseHelper().getSoronaMasina(page: currentPage);
+      if (newItems.isNotEmpty) {
+        setState(() {
+          items.addAll(newItems);
+          currentPage++;
+        });
+      } else {
+        setState(() => hasMoreData = false);
+      }
+    } catch (e) {
+      setState(() => hasMoreData = false);
+    }
+
+    setState(() => isFetchingMore = false);
+  }
+
+  Future<void> _fetchPageData(int page) async {
+    setState(() => isFetchingMore = true);
+
+    try {
+      var newItems = await DatabaseHelper().getSoronaMasina(page: page);
+      if (newItems.isNotEmpty) {
+        setState(() {
+          items.addAll(newItems);
+          currentPage = page;
+          hasMoreData = newItems.length == 30;
+        });
+      } else {
+        setState(() => hasMoreData = false);
+      }
+    } catch (e) {
+      setState(() => hasMoreData = false);
+    }
+
+    setState(() => isFetchingMore = false);
+    if (_scrollController.hasClients) {
+      int? indexToShow = page * 30 - 30;
+      _scrollController.jumpTo(indexToShow * _heightOfYourListTile);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Color _getColorFromName(String? colorName) {
+    const defaultColor = Colors.green;
+    if (colorName == null) {
+      return defaultColor;
+    } else {
+      switch (colorName) {
+        case 'green':
+          return Colors.green;
+        case 'white':
+          return Colors.white;
+        case 'red':
+          return Colors.red;
+        default:
+          return Colors.transparent;
+      }
+    }
+  }
+
+  String capitalizeFirstLetter(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
+  String formatDate(String date) {
+    // Parse the original string date
+    DateTime dateTime = DateFormat('yyyy-MM-dd').parse(date);
+    // Format to new string date
+    String formattedDate = DateFormat('dd-MM-yyyy').format(dateTime);
+    return formattedDate;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: lighten_2,
+      appBar: AppBar(
+        actionsIconTheme: const IconThemeData(color: lighten_1),
+        iconTheme: const IconThemeData(color: lighten_1),
+        backgroundColor: primary,
+        centerTitle: true,
+        title: const Text(
+          'Sorona Masina',
+          style: TextStyle(color: lighten_1),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_today),
+            onPressed: () async {
+              DateTime? selectedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2024),
+                lastDate: DateTime(2028),
+              );
+              if (selectedDate != null) {
+                setState(() {
+                  items.clear();
+                  isFetchingMore = false;
+                  hasMoreData = true;
+                });
+                var index = await DatabaseHelper().getIndexByDate(
+                  DateFormat('yyyy-MM-dd').format(selectedDate),
+                );
+                print("ity ny $index");
+                if (index != -1) {
+                  int page = (index / 30).floor() + 1;
+                  currentPage = page;
+                  print(currentPage);
+                  _fetchPageData(page);
+                }
+              }
+            },
+          ),
+        ],
+      ),
+      body: ListView.builder(
+        controller: _scrollController,
+        itemCount: items.length + (hasMoreData ? 1 : 0),
+        itemBuilder: (BuildContext context, int index) {
+          if (index == items.length && hasMoreData) {
+            // Bottom loader
+            return const Center(child: CircularProgressIndicator());
+          }
+          // Item builder
+          var item = items.elementAt(index);
+          var loko = item['loko'];
+          return Card(
+            margin: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+            color: primary,
+            child: ListTile(
+              key: index == indexToShow ? yourListItemKey : null,
+              contentPadding: const EdgeInsets.all(0),
+              leading: Container(
+                margin: const EdgeInsets.all(8.0),
+                color: _getColorFromName(loko),
+                height: 24,
+                width: 24,
+              ),
+              title: Text(
+                '${formatDate(item['daty'])} ${item['daty_gasy']}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: secondary,
+                  fontSize: 18.0,
+                ),
+              ),
+              subtitle: Text(
+                '${capitalizeFirstLetter(item['herinandro'].toString().replaceFirst("HER.", "HERINANDRO"))} ${capitalizeFirstLetter(item['vanimpotoana'])}',
+                style: const TextStyle(
+                  color: tertiary,
+                  fontSize: 15.0,
+                ),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const VotoatinySoronaMasina(),
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
